@@ -1,0 +1,42 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
+
+@Injectable()
+export class UserService {
+  constructor(
+    @InjectModel('User') private model: Model<any>,
+  ) { }
+
+  async create(data) {
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    return this.model.create({
+      ...data,
+      password: hashedPassword,
+    });
+  }
+
+  async findAll() {
+    return this.model.find();
+  }
+
+  async findByEmail(email: string) {
+    return this.model.findOne({ email });
+  }
+
+  async update(userId: string, data: any) {
+    const allowedFields = {
+      name: data.name,
+      weight: data.weight,
+      height: data.height,
+    };
+
+    return this.model.findByIdAndUpdate(
+      userId,
+      { $set: allowedFields },
+      { new: true },
+    );
+  }
+}
