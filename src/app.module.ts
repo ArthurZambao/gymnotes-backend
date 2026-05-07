@@ -11,7 +11,7 @@ import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot("mongodb://arthurzambaoo:r2AiDka9qIYhHVfe@ac-kzyumq6-shard-00-00.l8jm2ey.mongodb.net:27017,ac-kzyumq6-shard-00-01.l8jm2ey.mongodb.net:27017,ac-kzyumq6-shard-00-02.l8jm2ey.mongodb.net:27017/?ssl=true&replicaSet=atlas-sb2y8d-shard-0&authSource=admin&appName=GymNotesDB"),
+    MongooseModule.forRoot(process.env.MONGO_URL!),
     ExerciseModule,
     WorkoutModule,
     WorkoutLogModule,
