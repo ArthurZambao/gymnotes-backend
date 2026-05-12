@@ -1,4 +1,10 @@
-import { IsEmail, IsString, MinLength, IsNumber, IsOptional } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  IsNumber,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -17,4 +23,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsNumber()
   height?: number;
+
+  @IsString()
+  avatar!: string;
 }

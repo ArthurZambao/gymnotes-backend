@@ -16,12 +16,11 @@ export class UserController {
     return this.service.findAll();
   }
 
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  getMe(@Req() req) {
-    console.log(req.user);
-    return req.user;
-  }
+@Get('me')
+@UseGuards(JwtAuthGuard)
+async getMe(@Req() req) {
+  return this.service.findById(req.user.sub); // busca tudo do banco
+}
 
   @Patch('me')
   @UseGuards(JwtAuthGuard)

@@ -32,6 +32,7 @@ export class AuthService {
         name: user.name,
         weight: user.weight,
         height: user.height,
+        avatar: user.avatar,
       },
     };
   }

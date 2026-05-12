@@ -18,6 +18,10 @@ export class UserService {
     });
   }
 
+  async findById(id: string) {
+    return this.model.findById(id).select('-password'); // oculta a senha
+  }
+
   async findAll() {
     return this.model.find();
   }
@@ -31,6 +35,7 @@ export class UserService {
       name: data.name,
       weight: data.weight,
       height: data.height,
+      avatar: data.avatar,
     };
 
     return this.model.findByIdAndUpdate(

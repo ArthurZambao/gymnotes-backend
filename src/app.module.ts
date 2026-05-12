@@ -7,19 +7,25 @@ import { WorkoutModule } from './modules/workout/workout.module';
 import { WorkoutLogModule } from './modules/workout-log/workout-log.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.MONGO_URL!),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGO_URL'),
+      }),
+      inject: [ConfigService],
+    }),
     ExerciseModule,
     WorkoutModule,
     WorkoutLogModule,
     UserModule,
     AuthModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
   ],
   controllers: [AppController],
   providers: [AppService],
