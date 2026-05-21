@@ -15,8 +15,8 @@ class ExerciseDto {
   @IsNumber()
   sets!: number;
 
-  @IsNumber()
-  reps!: number;
+  @IsArray()
+  reps!: number[];
 
   @IsNumber()
   order!: number;

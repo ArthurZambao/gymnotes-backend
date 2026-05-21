@@ -11,7 +11,7 @@ export const WorkoutSchema = new Schema({
         {
           exerciseId: { type: Types.ObjectId, ref: 'Exercise' },
           sets: Number,
-          reps: Number,
+          reps: [Number],
           order: Number,
         },
       ],

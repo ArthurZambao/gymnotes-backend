@@ -24,6 +24,7 @@ export class CreateUserDto {
   @IsNumber()
   height?: number;
 
+  @IsOptional()
   @IsString()
   avatar!: string;
 }

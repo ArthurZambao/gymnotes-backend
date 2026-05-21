@@ -11,7 +11,7 @@ export interface Workout extends Document {
     exercises: {
       exerciseId: Types.ObjectId;
       sets: number;
-      reps: number;
+      reps: [number];
       order: number;
     }[];
   }[];
