@@ -1,7 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { Document, Types } from 'mongoose';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Document, Types } from 'mongoose';
 
 export interface Workout extends Document {
   userId: Types.ObjectId;
@@ -11,7 +10,7 @@ export interface Workout extends Document {
     exercises: {
       exerciseId: Types.ObjectId;
       sets: number;
-      reps: [number];
+      reps: number[];
       order: number;
     }[];
   }[];
@@ -29,18 +28,31 @@ export class WorkoutService {
 
   findByUser(userId: string) {
     return this.model
-      .find({
-        userId: new Types.ObjectId(userId),
-      })
-      .populate("days.exercises.exerciseId")
+      .find({ userId: new Types.ObjectId(userId) })
+      .populate('days.exercises.exerciseId');
   }
 
-  update(id: string, data) {
+  async update(id: string, requestingUserId: string, data: any) {
+    const workout = await this.model.findById(id);
+
+    if (!workout) throw new NotFoundException('Workout não encontrado');
+
+    if (workout.userId.toString() !== requestingUserId) {
+      throw new ForbiddenException('Você não tem permissão para editar este workout');
+    }
+
     return this.model.findByIdAndUpdate(id, data, { new: true });
   }
 
-  delete(id: string) {
+  async delete(id: string, requestingUserId: string) {
+    const workout = await this.model.findById(id);
+
+    if (!workout) throw new NotFoundException('Workout não encontrado');
+
+    if (workout.userId.toString() !== requestingUserId) {
+      throw new ForbiddenException('Você não tem permissão para deletar este workout');
+    }
+
     return this.model.findByIdAndDelete(id);
   }
-
 }

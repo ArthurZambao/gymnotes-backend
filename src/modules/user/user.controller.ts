@@ -1,26 +1,25 @@
 import { Body, Controller, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth-guard';
+import { CreateUserDto } from './dto/create-user-dto';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('users')
 export class UserController {
   constructor(private service: UserService) { }
 
   @Post()
-  create(@Body() body) {
+  @Throttle({ auth: { ttl: 60_000, limit: 10 } }) // Limita criação de contas
+  create(@Body() body: CreateUserDto) {
     return this.service.create(body);
   }
 
-  @Get()
-  findAll() {
-    return this.service.findAll();
-  }
 
-@Get('me')
-@UseGuards(JwtAuthGuard)
-async getMe(@Req() req) {
-  return this.service.findById(req.user.sub); // busca tudo do banco
-}
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getMe(@Req() req) {
+    return this.service.findById(req.user.sub);
+  }
 
   @Patch('me')
   @UseGuards(JwtAuthGuard)

@@ -12,18 +12,17 @@ export class UserService {
   async create(data) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    return this.model.create({
+    const created = await this.model.create({
       ...data,
       password: hashedPassword,
     });
+
+    const { password: _pw, ...userWithoutPassword } = created.toObject();
+    return userWithoutPassword;
   }
 
   async findById(id: string) {
-    return this.model.findById(id).select('-password'); // oculta a senha
-  }
-
-  async findAll() {
-    return this.model.find();
+    return this.model.findById(id).select('-password');
   }
 
   async findByEmail(email: string) {
@@ -38,10 +37,8 @@ export class UserService {
       avatar: data.avatar,
     };
 
-    return this.model.findByIdAndUpdate(
-      userId,
-      { $set: allowedFields },
-      { new: true },
-    );
+    return this.model
+      .findByIdAndUpdate(userId, { $set: allowedFields }, { new: true })
+      .select('-password');
   }
 }

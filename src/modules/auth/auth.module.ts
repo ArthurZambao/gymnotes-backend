@@ -15,13 +15,15 @@ import { UserModule } from '../user/user.module';
         const secret = configService.get<string>('JWT_SECRET');
 
         if (!secret) {
-          console.warn('CUIDADO: JWT_SECRET não definida no .env!');
+          throw new Error(
+            'JWT_SECRET não definida. Defina a variável de ambiente antes de iniciar a aplicação.',
+          );
         }
 
         return {
-          secret: secret || 'chave-muito-segura-e-secreta', // Fallback apenas para não quebrar em dev
+          secret,
           signOptions: {
-            expiresIn: 15 * 60,
+            expiresIn: '15m',
           },
         };
       },

@@ -5,10 +5,6 @@ import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
-  findAll() {
-    throw new Error('Method not implemented.');
-  }
-
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
@@ -17,11 +13,15 @@ export class AuthService {
   async login(email: string, password: string) {
     const user = await this.userService.findByEmail(email);
 
-    if (!user) throw new UnauthorizedException("Credenciais inválidas");
+    // Compara mesmo se user não existir para evitar timing attack
+    const dummyHash = '$2b$10$invalidsaltinvalidsaltinvalidsalt';
+    const isMatch = user
+      ? await bcrypt.compare(password, user.password)
+      : await bcrypt.compare(password, dummyHash).then(() => false);
 
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) throw new UnauthorizedException("Credenciais inválidas");
+    if (!user || !isMatch) {
+      throw new UnauthorizedException('Credenciais inválidas');
+    }
 
     const tokens = await this.generateTokens(user);
 
@@ -44,16 +44,13 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: "15m",
+      expiresIn: '15m',
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: "7d",
+      expiresIn: '7d',
     });
 
-    return {
-      accessToken,
-      refreshToken,
-    };
+    return { accessToken, refreshToken };
   }
 }
