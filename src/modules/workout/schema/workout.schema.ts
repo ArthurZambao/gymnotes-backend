@@ -17,4 +17,6 @@ export const WorkoutSchema = new Schema({
       ],
     },
   ],
+  startDate: { type: Date, required: true },
+  expirationDate: { type: Date, required: false },
 });

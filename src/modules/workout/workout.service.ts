@@ -14,6 +14,8 @@ export interface Workout extends Document {
       order: number;
     }[];
   }[];
+  startDate: Date;
+  expirationDate?: Date;
 }
 
 @Injectable()

@@ -4,6 +4,8 @@ import {
   IsMongoId,
   IsNumber,
   ValidateNested,
+  IsDateString,
+  IsOptional,
 } from 'class-validator';
 
 import { Type } from 'class-transformer';
@@ -20,6 +22,8 @@ class ExerciseDto {
 
   @IsNumber()
   order!: number;
+
+
 }
 
 class WorkoutDayDto {
@@ -32,7 +36,6 @@ class WorkoutDayDto {
   exercises!: ExerciseDto[];
 }
 
-
 export class CreateWorkoutDto {
   @IsString()
   name!: string;
@@ -41,4 +44,11 @@ export class CreateWorkoutDto {
   @ValidateNested({ each: true })
   @Type(() => WorkoutDayDto)
   days!: WorkoutDayDto[];
+
+  @IsDateString()
+  startDate!: string;
+
+  @IsOptional()
+  @IsDateString()
+  expirationDate?: string;
 }
