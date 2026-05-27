@@ -53,4 +53,21 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
+
+  async loginWithGoogle(googleUser: { email: string; name: string; avatar: string }) {
+    let user = await this.userService.findByEmail(googleUser.email);
+
+    if (!user) {
+      // cria o usuário automaticamente se for o primeiro login
+      user = await this.userService.create({
+        email: googleUser.email,
+        name: googleUser.name,
+        avatar: googleUser.avatar,
+        password: crypto.randomUUID(), // senha aleatória, nunca vai usar
+      });
+    }
+
+    return this.generateTokens(user);
+  }
+
 }

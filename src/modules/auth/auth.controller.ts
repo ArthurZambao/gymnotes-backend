@@ -1,8 +1,9 @@
-import { Body, Controller, Post, Res, Req, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Post, Get, Res, UseGuards, UnauthorizedException, Req } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { Throttle } from '@nestjs/throttler';
+import { AuthGuard } from '@nestjs/passport';
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 
@@ -60,5 +61,21 @@ export class AuthController {
     response.clearCookie('token', cookieOptions);
     response.clearCookie('refreshToken', cookieOptions);
     return { message: 'Logged out successfully' };
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  googleLogin() { }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleCallback(@Req() req, @Res() res: Response) {
+    const result = await this.service.loginWithGoogle(req.user);
+
+    res.cookie('token', result.accessToken, cookieOptions);
+    res.cookie('refreshToken', result.refreshToken, cookieOptions);
+
+    // redireciona pro frontend já logado
+    res.redirect(`${process.env.FRONTEND_URL}/home`);
   }
 }

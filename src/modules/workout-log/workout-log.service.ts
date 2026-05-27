@@ -40,4 +40,8 @@ export class WorkoutLogService {
       date: { $gte: start, $lt: end },
     }).populate('exercises.exerciseId', 'name');
   }
+
+  async deleteById(id: string, userId: string) {
+    return this.model.findOneAndDelete({ _id: id, userId });
+  }
 }
