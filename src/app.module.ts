@@ -28,7 +28,7 @@ import { APP_GUARD } from '@nestjs/core';
         // Limite geral: 100 req por 60 segundos por IP
         name: 'global',
         ttl: 60_000,
-        limit: 100,
+        limit: 200,
       },
       {
         // Limite estrito para auth: 10 tentativas por minuto

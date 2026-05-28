@@ -2,15 +2,30 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? ['http://localhost:3001'];
+  const allowedOrigins = [
+    ...(process.env.ALLOWED_ORIGINS?.split(',') ?? []),
+    'http://localhost:3000',  // swagger
+    `http://localhost:${process.env.PORT ?? 3000}`,
+  ];
+
+  // Configuração do Swagger
+  const config = new DocumentBuilder()
+    .setTitle('Workout Notes API')
+    .setDescription('Documentação da API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+
 
   app.enableCors({
     origin: (origin, callback) => {
-      // Permite requests sem origin (ex: mobile apps, curl) em dev
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -21,13 +36,15 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,       // remove campos não declarados no DTO
-    forbidNonWhitelisted: true, // lança erro se vier campo extra
+    whitelist: true,
+    forbidNonWhitelisted: true,
     transform: true,
   }));
 
   app.use(cookieParser());
-
+  const port = process.env.PORT ?? 3000;
   await app.listen(process.env.PORT ?? 3000);
+
+  console.log(`Swagger docs at http://localhost:${port}/docs`);
 }
 bootstrap();

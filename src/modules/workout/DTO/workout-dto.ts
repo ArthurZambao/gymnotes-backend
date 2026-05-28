@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 
 import { Type } from 'class-transformer';
+import { PartialType } from 'node_modules/@nestjs/swagger/dist/type-helpers/partial-type.helper';
 
 class ExerciseDto {
   @IsMongoId()
@@ -52,3 +53,5 @@ export class CreateWorkoutDto {
   @IsDateString()
   expirationDate?: string;
 }
+
+export class UpdateWorkoutDto extends PartialType(CreateWorkoutDto) { }

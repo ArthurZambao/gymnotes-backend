@@ -4,6 +4,8 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { Throttle } from '@nestjs/throttler';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { LoginDto } from './dto/login.dto';
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 
@@ -13,6 +15,7 @@ const cookieOptions = {
   secure: IS_PROD,
 };
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -20,9 +23,10 @@ export class AuthController {
     private jwtService: JwtService,
   ) { }
 
+  @ApiOperation({ summary: 'Realiza login do usuário' })
   @Post('login')
   @Throttle({ auth: { ttl: 60_000, limit: 10 } })
-  async login(@Body() body, @Res({ passthrough: true }) res: Response) {
+  async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
     const result = await this.service.login(body.email, body.password);
 
     res.cookie('token', result.accessToken, cookieOptions);
@@ -31,6 +35,7 @@ export class AuthController {
     return result;
   }
 
+  @ApiOperation({ summary: 'Renova o token de acesso usando o refresh token' })
   @Post('refresh')
   @Throttle({ auth: { ttl: 60_000, limit: 10 } })
   async refresh(@Req() req, @Res({ passthrough: true }) res: Response) {
@@ -56,6 +61,7 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Realiza logout do usuário' })
   @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('token', cookieOptions);
@@ -63,10 +69,12 @@ export class AuthController {
     return { message: 'Logged out successfully' };
   }
 
+  @ApiOperation({ summary: 'Inicia o login com Google' })
   @Get('google')
   @UseGuards(AuthGuard('google'))
   googleLogin() { }
 
+  @ApiOperation({ summary: 'Completa o login com Google' })
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleCallback(@Req() req, @Res() res: Response) {
