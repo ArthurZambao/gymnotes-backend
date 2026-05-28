@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
@@ -8,8 +8,14 @@ export class ExerciseService {
     @InjectModel('Exercise') private model: Model<any>,
   ) { }
 
-  create(data) {
+  async create(data) {
+    const existing = await this.model.findOne({ name: data.name });
+    if (existing) {
+      throw new ConflictException('Exercício já cadastrado');
+    }
+
     return this.model.create(data);
+
   }
 
   findAll() {
