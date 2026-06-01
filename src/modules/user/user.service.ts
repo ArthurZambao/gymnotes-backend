@@ -11,49 +11,36 @@ export class UserService {
   ) { }
 
   async create(data) {
-    const hashedPassword = await bcrypt.hash(data.password, 10);
-
     const existing = await this.model.findOne({ email: data.email });
-    if (existing) {
-      throw new ConflictException('Email já cadastrado');
-    }
+    if (existing) throw new ConflictException('Email já cadastrado');
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const created = await this.model.create({
       ...data,
       password: hashedPassword,
+      emailVerified: data.emailVerified ?? false,
     });
 
     const { password: _pw, ...userWithoutPassword } = created.toObject();
-    console.log(userWithoutPassword);
     return userWithoutPassword;
   }
 
   async findById(id: string) {
-
-    const userId = await this.model.findById(id);
-    if (!userId) {
-      throw new NotFoundException('Usuário não encontrado');
-    }
-
-    return userId;
+    const user = await this.model.findById(id);
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+    return user;
   }
 
   async findByEmail(email: string) {
-
-    const userEmail = await this.model.findOne({ email });
-    if (!userEmail) {
-      throw new NotFoundException('Usuário não encontrado');
-    }
-
-    return userEmail;
+    const user = await this.model.findOne({ email });
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+    return user;
   }
 
   async update(userId: string, data: UpdateUserDto) {
-
     const existing = await this.model.findById(userId);
-    if (!existing) {
-      throw new NotFoundException('Usuário não encontrado');
-    }
+    if (!existing) throw new NotFoundException('Usuário não encontrado');
 
     const allowedFields = {
       name: data.name,
@@ -65,5 +52,28 @@ export class UserService {
     return this.model
       .findByIdAndUpdate(userId, { $set: allowedFields }, { new: true })
       .select('-password');
+  }
+
+  async setVerificationToken(userId: string, token: string, expires: Date) {
+    return this.model.findByIdAndUpdate(userId, {
+      emailVerificationToken: token,
+      emailVerificationExpires: expires,
+    });
+  }
+
+  async verifyEmail(token: string) {
+    const user = await this.model.findOne({
+      emailVerificationToken: token,
+      emailVerificationExpires: { $gt: new Date() },
+    });
+
+    if (!user) return null;
+
+    user.emailVerified = true;
+    user.emailVerificationToken = null;
+    user.emailVerificationExpires = null;
+    await user.save();
+
+    return user;
   }
 }

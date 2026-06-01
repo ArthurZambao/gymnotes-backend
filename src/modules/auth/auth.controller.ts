@@ -1,11 +1,12 @@
-import { Body, Controller, Post, Get, Res, UseGuards, UnauthorizedException, Req } from '@nestjs/common';
+import { Body, Controller, Post, Get, Res, UseGuards, UnauthorizedException, Req, Query } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { Throttle } from '@nestjs/throttler';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
+import { UserService } from '../user/user.service';
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 
@@ -21,6 +22,7 @@ export class AuthController {
   constructor(
     private service: AuthService,
     private jwtService: JwtService,
+    private userService: UserService,
   ) { }
 
   @ApiOperation({ summary: 'Realiza login do usuário' })
@@ -85,5 +87,25 @@ export class AuthController {
 
     // redireciona pro frontend já logado
     res.redirect(`${process.env.FRONTEND_URL}/home`);
+  }
+
+  @ApiOperation({ summary: 'Verifica o email pelo token recebido' })
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string) {
+    return this.service.verifyEmail(token);
+  }
+
+  @ApiOperation({ summary: 'Reenvia o email de verificação' })
+  @Post('resend-verification')
+  @Throttle({ auth: { ttl: 60_000, limit: 3 } })
+  async resendVerification(@Body('email') email: string) {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user || user.emailVerified) {
+      return { message: 'Se o email existir, um novo link foi enviado.' };
+    }
+
+    await this.service.sendVerificationEmail(user._id, user.email, user.name);
+    return { message: 'Se o email existir, um novo link foi enviado.' };
   }
 }

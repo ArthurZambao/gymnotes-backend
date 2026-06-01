@@ -1,23 +1,29 @@
 import { Body, Controller, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
+import { AuthService } from '../auth/auth.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth-guard';
 import { CreateUserDto, UpdateUserDto } from './dto/create-user-dto';
 import { Throttle } from '@nestjs/throttler';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
-
-
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 @Controller('users')
 @ApiTags('users')
 @ApiBearerAuth()
 export class UserController {
-  constructor(private service: UserService) { }
+  constructor(
+    private service: UserService,
+    private authService: AuthService,  // 👈
+  ) { }
 
   @ApiOperation({ summary: 'Cria um novo usuário' })
   @Post()
   @Throttle({ auth: { ttl: 60_000, limit: 10 } })
-  create(@Body() body: CreateUserDto) {
-    return this.service.create(body);
+  async create(@Body() body: CreateUserDto) {
+    const user = await this.service.create(body);
+
+    await this.authService.sendVerificationEmail(user._id, user.email, user.name);
+
+    return { message: 'Usuário criado! Verifique seu email para ativar a conta.' };
   }
 
   @ApiOperation({ summary: 'Busca os dados do usuário autenticado' })
