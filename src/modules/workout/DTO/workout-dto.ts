@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 
 import { Type } from 'class-transformer';
-import { PartialType } from 'node_modules/@nestjs/swagger/dist/type-helpers/partial-type.helper';
+import { PartialType } from '@nestjs/swagger';
 
 class ExerciseDto {
   @IsMongoId()
