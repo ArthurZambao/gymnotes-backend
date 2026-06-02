@@ -7,6 +7,7 @@ export const UserSchema = new Schema({
   avatar: { type: String },
   weight: { type: Number },
   height: { type: Number },
+  biotype: { type: String, enum: ['Ectomorfo', 'Mesomorfo', 'Endomorfo'], default: null },
   emailVerified: { type: Boolean, default: false },
   emailVerificationToken: { type: String, default: null },
   emailVerificationExpires: { type: Date, default: null },

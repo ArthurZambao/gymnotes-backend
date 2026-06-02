@@ -24,6 +24,11 @@ export class CreateUserDto {
   @IsNumber()
   height?: number;
 
+  @ApiPropertyOptional({ example: 'Mesomorfo' })
+  @IsOptional()
+  @IsString()
+  biotype?: string;
+
   @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
   @IsOptional()
   @IsString()
