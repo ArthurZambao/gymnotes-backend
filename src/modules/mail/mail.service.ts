@@ -1,19 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
+import { Resend } from 'resend';
 
 @Injectable()
 export class MailService {
-  constructor(private mailer: MailerService) { }
+  private resend: Resend;
+  private fromAddress: string;
+
+  constructor(private config: ConfigService) {
+    this.resend = new Resend(this.config.getOrThrow<string>('RESEND_API_KEY'));
+    this.fromAddress = this.config.get<string>('MAIL_FROM', 'onboarding@resend.dev');
+  }
 
   async sendVerificationEmail(email: string, name: string, token: string, baseUrl: string) {
     const url = `${baseUrl}/auth/verify-email?token=${token}`;
 
-    console.log('[MAIL] Iniciando envio');
+    console.log('[MAIL] Iniciando envio via Resend');
     console.log('[MAIL] Destinatário:', email);
 
     try {
-      await this.mailer.sendMail({
-        to: email,
+      const { data, error } = await this.resend.emails.send({
+        from: `GymNotes <${this.fromAddress}>`,
+        to: [email],
         subject: 'Confirme seu email — GymNotes',
         html: `
           <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
@@ -31,7 +39,12 @@ export class MailService {
         `,
       });
 
-      console.log('[MAIL] Email enviado com sucesso');
+      if (error) {
+        console.error('[MAIL] Resend retornou erro:', error);
+        throw new Error(error.message);
+      }
+
+      console.log('[MAIL] Email enviado com sucesso. ID:', data?.id);
     } catch (error) {
       console.error('[MAIL] Erro ao enviar email:', error);
       throw error;
