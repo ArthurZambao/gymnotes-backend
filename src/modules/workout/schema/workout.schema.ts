@@ -11,10 +11,12 @@ export const WorkoutSchema = new Schema({
         {
           exerciseId: { type: Types.ObjectId, ref: 'Exercise' },
           sets: Number,
-          reps: Number,
+          reps: [Number],
           order: Number,
         },
       ],
     },
   ],
+  startDate: { type: Date, required: true },
+  expirationDate: { type: Date, required: false },
 });

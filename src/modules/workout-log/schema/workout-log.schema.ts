@@ -12,7 +12,7 @@ export const WorkoutLogSchema = new Schema({
     {
       exerciseId: { type: Types.ObjectId, ref: 'Exercise' },
       sets: { type: Number, required: true },
-      reps: { type: Number, required: true },
+      reps: { type: [Number], required: true },
       weight: { type: Number },
     },
   ],
