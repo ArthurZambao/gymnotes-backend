@@ -11,7 +11,10 @@ import { MailService } from './mail.service';
         transport: {
           host: config.getOrThrow<string>('MAIL_HOST'),
           port: config.get<number>('MAIL_PORT', 587),
-          family: 4,
+          secure: false,
+          connectionTimeout: 10000,
+          greetingTimeout: 10000,
+          socketTimeout: 10000,
           auth: {
             user: config.getOrThrow<string>('MAIL_USER'),
             pass: config.getOrThrow<string>('MAIL_PASS'),

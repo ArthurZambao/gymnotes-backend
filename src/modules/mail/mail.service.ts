@@ -8,6 +8,9 @@ export class MailService {
   async sendVerificationEmail(email: string, name: string, token: string, baseUrl: string) {
     const url = `${baseUrl}/auth/verify-email?token=${token}`;
 
+    console.log('[MAIL] Iniciando envio');
+    console.log('[MAIL] Destinatário:', email);
+
     await this.mailer.sendMail({
       to: email,
       subject: 'Confirme seu email — GymNotes',
@@ -26,5 +29,10 @@ export class MailService {
         </div>
       `,
     });
+
+    console.log('[MAIL] Email enviado com sucesso');
+  } catch(error) {
+    console.error('[MAIL] Erro ao enviar email:', error);
+    throw error;
   }
 }
