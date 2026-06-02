@@ -1,98 +1,175 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# GymNotes — Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST desenvolvida com **NestJS** para o GymNotes, uma aplicação de registro e acompanhamento de treinos. Permite criar fichas de treino personalizadas, registrar logs diários de exercícios e acompanhar a frequência de treinos ao longo do tempo.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 🚀 Tecnologias
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **[NestJS](https://nestjs.com/)** — framework Node.js para construção da API
+- **[MongoDB](https://www.mongodb.com/)** + **[Mongoose](https://mongoosejs.com/)** — banco de dados e ODM
+- **[JWT](https://jwt.io/)** — autenticação via access token + refresh token
+- **[Passport](http://www.passportjs.org/)** — estratégias de autenticação (local + Google OAuth)
+- **[bcrypt](https://www.npmjs.com/package/bcrypt)** — hash de senhas
+- **[@nestjs/throttler](https://docs.nestjs.com/security/rate-limiting)** — rate limiting
+- **[@nestjs/swagger](https://docs.nestjs.com/openapi/introduction)** — documentação automática da API
+- **[cookie-parser](https://www.npmjs.com/package/cookie-parser)** — leitura de cookies HTTP
 
-## Project setup
+---
+
+## 📦 Instalação
 
 ```bash
-$ yarn install
+# Clonar o repositório
+git clone https://github.com/seu-usuario/gymnotes-backend.git
+cd gymnotes-backend
+
+# Instalar dependências
+npm install
 ```
 
-## Compile and run the project
+---
+
+## ⚙️ Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+```env
+# Banco de dados
+MONGODB_URI=mongodb+srv://usuario:senha@cluster.mongodb.net/gymnotes
+
+# JWT
+JWT_SECRET=sua_chave_secreta
+
+# Google OAuth
+GOOGLE_CLIENT_ID=seu_google_client_id
+GOOGLE_CLIENT_SECRET=seu_google_client_secret
+
+# App
+PORT=3000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:3001
+ALLOWED_ORIGINS=http://localhost:3001
+```
+
+---
+
+## ▶️ Rodando o projeto
 
 ```bash
-# development
-$ yarn run start
+# Desenvolvimento
+npm run start:dev
 
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+# Produção
+npm run build
+npm run start:prod
 ```
 
-## Run tests
+O servidor sobe em `http://localhost:3000` e a documentação Swagger em `http://localhost:3000/docs`.
 
-```bash
-# unit tests
-$ yarn run test
+---
 
-# e2e tests
-$ yarn run test:e2e
+## 📁 Estrutura de Módulos
 
-# test coverage
-$ yarn run test:cov
+```
+src/
+├── modules/
+│   ├── auth/           # Autenticação JWT + Google OAuth
+│   ├── user/           # Cadastro e perfil do usuário
+│   ├── exercise/       # Banco de exercícios
+│   ├── workout/        # Fichas de treino
+│   └── workout-log/    # Registros diários de treino
+└── main.ts
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 🔐 Autenticação
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+A API utiliza dois tokens JWT armazenados em cookies `httpOnly`:
 
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
-```
+| Token | Expiração | Descrição |
+|---|---|---|
+| `token` | 15 minutos | Access token para requisições autenticadas |
+| `refreshToken` | 7 dias | Usado para renovar o access token |
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Fluxo
+1. `POST /auth/login` — autentica e seta os cookies
+2. `POST /auth/refresh` — renova o access token usando o refresh token
+3. `POST /auth/logout` — limpa os cookies
 
-## Resources
+Também é suportado login via **Google OAuth** em `GET /auth/google`.
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 📡 Endpoints
 
-## Support
+### Auth
+| Método | Rota | Descrição | Auth |
+|---|---|---|---|
+| POST | `/auth/login` | Login com email e senha | ❌ |
+| POST | `/auth/refresh` | Renova o access token | ❌ |
+| POST | `/auth/logout` | Logout | ❌ |
+| GET | `/auth/google` | Inicia login com Google | ❌ |
+| GET | `/auth/google/callback` | Callback do Google OAuth | ❌ |
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Users
+| Método | Rota | Descrição | Auth |
+|---|---|---|---|
+| POST | `/users` | Cria um novo usuário | ❌ |
+| GET | `/users/me` | Retorna dados do usuário autenticado | ✅ |
+| PATCH | `/users/me` | Atualiza dados do usuário | ✅ |
 
-## Stay in touch
+### Exercises
+| Método | Rota | Descrição | Auth |
+|---|---|---|---|
+| POST | `/exercises` | Cria um exercício | ❌ |
+| GET | `/exercises` | Lista todos os exercícios | ❌ |
+| GET | `/exercises?muscle=biceps` | Filtra por grupo muscular | ❌ |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Workouts
+| Método | Rota | Descrição | Auth |
+|---|---|---|---|
+| POST | `/workouts` | Cria uma ficha de treino | ✅ |
+| GET | `/workouts/me` | Lista fichas do usuário | ✅ |
+| PATCH | `/workouts/:id` | Atualiza uma ficha | ✅ |
+| DELETE | `/workouts/:id` | Remove uma ficha | ✅ |
 
-## License
+### Workout Logs
+| Método | Rota | Descrição | Auth |
+|---|---|---|---|
+| POST | `/workout-logs` | Cria ou atualiza um log de treino | ✅ |
+| GET | `/workout-logs?month=2026-05` | Busca logs de um mês | ✅ |
+| DELETE | `/workout-logs/:id` | Remove um log | ✅ |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## 🛡️ Rate Limiting
+
+| Perfil | TTL | Limite | Aplicado em |
+|---|---|---|---|
+| `global` | 60s | 200 req | Todos os endpoints |
+| `auth` | 60s | 10 req | `/auth/login`, `/auth/refresh`, `POST /users` |
+| `default` | 60s | 20 req | `POST` e `DELETE` de workout-logs |
+
+O endpoint `GET /workout-logs` não possui rate limit pois o cache no frontend já reduz o volume de requisições.
+
+---
+
+## 📄 Documentação Swagger
+
+Disponível em `/docs` após subir o servidor. Todos os endpoints estão documentados com exemplos de request/response e suporte a autenticação Bearer.
+
+---
+
+## 🧱 Padrões do Projeto
+
+- **DTOs** com `class-validator` para validação de entrada em todos os endpoints
+- **Erros HTTP semânticos** via exceptions do NestJS (`NotFoundException`, `ConflictException`, `ForbiddenException`, `UnauthorizedException`)
+- **Ownership check** antes de qualquer mutação em recursos do usuário
+- **Senhas** nunca retornadas nas respostas (`.select('-password')`)
+- **Cookies `httpOnly`** para armazenamento seguro dos tokens
+
+---
+
+Made with 💚 by **Arthur Zambão**

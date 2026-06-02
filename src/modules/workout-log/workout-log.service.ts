@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
@@ -23,7 +23,7 @@ export class WorkoutLogService {
     });
 
     if (existingLog) {
-      return this.model.findByIdAndUpdate(existingLog._id, data, { new: true });
+      return this.model.findByIdAndUpdate(existingLog._id, data, { returnDocument: 'after' });
     }
 
     return this.model.create(data);
@@ -39,5 +39,15 @@ export class WorkoutLogService {
       userId,
       date: { $gte: start, $lt: end },
     }).populate('exercises.exerciseId', 'name');
+  }
+
+  async deleteById(id: string, userId: string) {
+    const log = await this.model.findOne({ _id: id, userId });
+
+    if (!log) {
+      throw new NotFoundException('Registro de treino não encontrado');
+    }
+
+    return this.model.findOneAndDelete({ _id: id, userId });
   }
 }

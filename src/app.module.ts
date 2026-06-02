@@ -1,27 +1,53 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ExerciseModule } from './modules/exercise/exercise.module';
 import { WorkoutModule } from './modules/workout/workout.module';
 import { WorkoutLogModule } from './modules/workout-log/workout-log.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
-    MongooseModule.forRoot("mongodb://arthurzambaoo:r2AiDka9qIYhHVfe@ac-kzyumq6-shard-00-00.l8jm2ey.mongodb.net:27017,ac-kzyumq6-shard-00-01.l8jm2ey.mongodb.net:27017,ac-kzyumq6-shard-00-02.l8jm2ey.mongodb.net:27017/?ssl=true&replicaSet=atlas-sb2y8d-shard-0&authSource=admin&appName=GymNotesDB"),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI'),
+      }),
+      inject: [ConfigService],
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => [
+        {
+          name: 'default',
+          ttl: parseInt(config.get<string>('THROTTLE_TTL', '60000'), 10),
+          limit: parseInt(config.get<string>('THROTTLE_LIMIT', '200'), 10),
+        },
+      ],
+    }),
     ExerciseModule,
     WorkoutModule,
     WorkoutLogModule,
     UserModule,
     AuthModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [
+    ...(process.env.NODE_ENV === 'test'
+      ? []
+      : [
+          {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+          },
+        ]),
+  ],
 })
 export class AppModule { }
