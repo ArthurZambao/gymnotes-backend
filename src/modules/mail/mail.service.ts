@@ -11,28 +11,30 @@ export class MailService {
     console.log('[MAIL] Iniciando envio');
     console.log('[MAIL] Destinatário:', email);
 
-    await this.mailer.sendMail({
-      to: email,
-      subject: 'Confirme seu email — GymNotes',
-      html: `
-        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-          <h2>Olá, ${name}! 👋</h2>
-          <p>Confirme seu email clicando no botão abaixo. O link expira em <strong>24 horas</strong>.</p>
-          <a href="${url}" target="_self" style="
-            display: inline-block; padding: 12px 24px;
-            background: #6366f1; color: white;
-            border-radius: 8px; text-decoration: none; font-weight: bold;
-          ">Verificar email</a>
-          <p style="color: #888; font-size: 12px; margin-top: 24px;">
-            Se não foi você, ignore este email.
-          </p>
-        </div>
-      `,
-    });
+    try {
+      await this.mailer.sendMail({
+        to: email,
+        subject: 'Confirme seu email — GymNotes',
+        html: `
+          <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+            <h2>Olá, ${name}! 👋</h2>
+            <p>Confirme seu email clicando no botão abaixo. O link expira em <strong>24 horas</strong>.</p>
+            <a href="${url}" target="_self" style="
+              display: inline-block; padding: 12px 24px;
+              background: #6366f1; color: white;
+              border-radius: 8px; text-decoration: none; font-weight: bold;
+            ">Verificar email</a>
+            <p style="color: #888; font-size: 12px; margin-top: 24px;">
+              Se não foi você, ignore este email.
+            </p>
+          </div>
+        `,
+      });
 
-    console.log('[MAIL] Email enviado com sucesso');
-  } catch(error) {
-    console.error('[MAIL] Erro ao enviar email:', error);
-    throw error;
+      console.log('[MAIL] Email enviado com sucesso');
+    } catch (error) {
+      console.error('[MAIL] Erro ao enviar email:', error);
+      throw error;
+    }
   }
 }

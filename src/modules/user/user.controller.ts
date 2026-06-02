@@ -21,7 +21,11 @@ export class UserController {
   async create(@Body() body: CreateUserDto) {
     const user = await this.service.create(body);
 
-    await this.authService.sendVerificationEmail(user._id, user.email, user.name);
+    try {
+      await this.authService.sendVerificationEmail(user._id, user.email, user.name);
+    } catch (err) {
+      console.error('[USER] Falha ao enviar email de verificação:', err);
+    }
 
     return { message: 'Usuário criado! Verifique seu email para ativar a conta.' };
   }
