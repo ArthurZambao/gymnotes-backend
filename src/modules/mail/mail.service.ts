@@ -15,7 +15,7 @@ export class MailService {
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
           <h2>Olá, ${name}! 👋</h2>
           <p>Confirme seu email clicando no botão abaixo. O link expira em <strong>24 horas</strong>.</p>
-          <a href="${url}" style="
+          <a href="${url}" target="_self" style="
             display: inline-block; padding: 12px 24px;
             background: #6366f1; color: white;
             border-radius: 8px; text-decoration: none; font-weight: bold;

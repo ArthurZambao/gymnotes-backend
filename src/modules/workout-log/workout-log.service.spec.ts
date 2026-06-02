@@ -63,7 +63,7 @@ describe('WorkoutLogService', () => {
       });
       expect(updated.exercises.length).toBe(1);
 
-      // Confirma que só existe 1 documento no banco
+
       const total = await logModel.countDocuments({ userId });
       expect(total).toBe(1);
     });

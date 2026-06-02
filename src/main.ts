@@ -9,11 +9,11 @@ async function bootstrap() {
 
   const allowedOrigins = [
     ...(process.env.ALLOWED_ORIGINS?.split(',') ?? []),
-    'http://localhost:3000',  // swagger
+    'http://localhost:3000',
     `http://localhost:${process.env.PORT ?? 3000}`,
   ];
 
-  // Configuração do Swagger
+
   const config = new DocumentBuilder()
     .setTitle('Workout Notes API')
     .setDescription('Documentação da API')

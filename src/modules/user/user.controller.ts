@@ -12,12 +12,12 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 export class UserController {
   constructor(
     private service: UserService,
-    private authService: AuthService,  // 👈
+    private authService: AuthService,
   ) { }
 
   @ApiOperation({ summary: 'Cria um novo usuário' })
   @Post()
-  @Throttle({ auth: { ttl: 60_000, limit: 10 } })
+  @Throttle({ default: { ttl: 60_000, limit: 10 } })
   async create(@Body() body: CreateUserDto) {
     const user = await this.service.create(body);
 

@@ -50,7 +50,7 @@ export class UserService {
     };
 
     return this.model
-      .findByIdAndUpdate(userId, { $set: allowedFields }, { new: true })
+      .findByIdAndUpdate(userId, { $set: allowedFields }, { returnDocument: 'after' })
       .select('-password');
   }
 

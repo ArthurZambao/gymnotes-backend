@@ -7,7 +7,7 @@ import { UserService } from './user.service';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 
-// Schema simples para os testes
+
 const UserSchema = new mongoose.Schema({
   name: String,
   email: String,
@@ -26,7 +26,7 @@ describe('UserService', () => {
   let mongoConnection: Connection;
   let userModel: Model<any>;
 
-  // Sobe o banco em memória antes de todos os testes
+
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create();
     const uri = mongod.getUri();
@@ -46,18 +46,18 @@ describe('UserService', () => {
     service = module.get<UserService>(UserService);
   });
 
-  // Limpa a coleção após cada teste para não acumular dados
+
   afterEach(async () => {
     await userModel.deleteMany({});
   });
 
-  // Derruba o banco após todos os testes
+
   afterAll(async () => {
     await mongoConnection.close();
     await mongod.stop();
   });
 
-  // ─── create ────────────────────────────────────────────────────────────────
+
 
   describe('create()', () => {
     it('deve criar um usuário e retornar sem a senha', async () => {
@@ -69,7 +69,7 @@ describe('UserService', () => {
 
       expect(result.email).toBe('joao@email.com');
       expect(result.name).toBe('João');
-      expect(result.password).toBeUndefined(); // senha não pode vazar
+      expect(result.password).toBeUndefined();
     });
 
     it('deve lançar ConflictException se email já existir', async () => {
@@ -89,7 +89,7 @@ describe('UserService', () => {
     });
   });
 
-  // ─── findById ──────────────────────────────────────────────────────────────
+
 
   describe('findById()', () => {
     it('deve retornar o usuário pelo id', async () => {
@@ -109,7 +109,7 @@ describe('UserService', () => {
     });
   });
 
-  // ─── findByEmail ───────────────────────────────────────────────────────────
+
 
   describe('findByEmail()', () => {
     it('deve retornar o usuário pelo email', async () => {
@@ -130,7 +130,7 @@ describe('UserService', () => {
     });
   });
 
-  // ─── update ────────────────────────────────────────────────────────────────
+
 
   describe('update()', () => {
     it('deve atualizar os dados do usuário', async () => {
@@ -193,7 +193,7 @@ describe('UserService', () => {
     });
 
     it('deve retornar null com token expirado', async () => {
-      const expired = new Date(Date.now() - 1000); // no passado
+      const expired = new Date(Date.now() - 1000);
       await userModel.create({
         name: 'Carlos',
         email: 'carlos@email.com',

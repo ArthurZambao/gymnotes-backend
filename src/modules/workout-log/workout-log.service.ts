@@ -23,7 +23,7 @@ export class WorkoutLogService {
     });
 
     if (existingLog) {
-      return this.model.findByIdAndUpdate(existingLog._id, data, { new: true });
+      return this.model.findByIdAndUpdate(existingLog._id, data, { returnDocument: 'after' });
     }
 
     return this.model.create(data);

@@ -27,7 +27,7 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    // 🔒 Bloqueia login se email não verificado
+
     if (!user.emailVerified) {
       throw new UnauthorizedException('Email não verificado. Verifique sua caixa de entrada.');
     }
@@ -46,7 +46,7 @@ export class AuthService {
 
   async sendVerificationEmail(userId: string, email: string, name: string) {
     const token = crypto.randomBytes(32).toString('hex');
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     await this.userService.setVerificationToken(userId, token, expires);
 
@@ -82,7 +82,7 @@ export class AuthService {
         name: googleUser.name,
         avatar: googleUser.avatar,
         password: crypto.randomUUID(),
-        emailVerified: true, // Google já confirma o email
+        emailVerified: true,
       });
     }
 

@@ -27,7 +27,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Realiza login do usuário' })
   @Post('login')
-  @Throttle({ auth: { ttl: 60_000, limit: 10 } })
+  @Throttle({ default: { ttl: 60_000, limit: 10 } })
   async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
     const result = await this.service.login(body.email, body.password);
 
@@ -39,7 +39,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Renova o token de acesso usando o refresh token' })
   @Post('refresh')
-  @Throttle({ auth: { ttl: 60_000, limit: 10 } })
+  @Throttle({ default: { ttl: 60_000, limit: 10 } })
   async refresh(@Req() req, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies?.refreshToken;
 
@@ -84,20 +84,23 @@ export class AuthController {
 
     res.cookie('token', result.accessToken, cookieOptions);
     res.cookie('refreshToken', result.refreshToken, cookieOptions);
-
-    // redireciona pro frontend já logado
     res.redirect(`${process.env.FRONTEND_URL}/home`);
   }
 
   @ApiOperation({ summary: 'Verifica o email pelo token recebido' })
   @Get('verify-email')
-  async verifyEmail(@Query('token') token: string) {
-    return this.service.verifyEmail(token);
+  async verifyEmail(@Query('token') token: string, @Res() res: Response) {
+    try {
+      await this.service.verifyEmail(token);
+      return res.redirect(`${process.env.FRONTEND_URL}/login?verified=true`);
+    } catch {
+      return res.redirect(`${process.env.FRONTEND_URL}/login?verified=false`);
+    }
   }
 
   @ApiOperation({ summary: 'Reenvia o email de verificação' })
   @Post('resend-verification')
-  @Throttle({ auth: { ttl: 60_000, limit: 3 } })
+  @Throttle({ default: { ttl: 60_000, limit: 3 } })
   async resendVerification(@Body('email') email: string) {
     const user = await this.userService.findByEmail(email);
 

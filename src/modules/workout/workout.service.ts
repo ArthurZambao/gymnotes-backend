@@ -47,7 +47,7 @@ export class WorkoutService {
       throw new ForbiddenException('Você não tem permissão para editar esta Ficha de Treino');
     }
 
-    return this.model.findByIdAndUpdate(id, data, { new: true });
+    return this.model.findByIdAndUpdate(id, data, { returnDocument: 'after' });
   }
 
   async delete(id: string, requestingUserId: string) {

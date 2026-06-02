@@ -29,7 +29,7 @@ describe('AuthService', () => {
     jest.clearAllMocks();
   });
 
-  // ─── login ─────────────────────────────────────────────────────────────────
+
 
   describe('login()', () => {
     it('deve retornar tokens e dados do usuário com credenciais corretas', async () => {
@@ -67,8 +67,7 @@ describe('AuthService', () => {
     });
 
     it('deve lançar UnauthorizedException se usuário não existir', async () => {
-      // O findByEmail lança NotFoundException, mas o AuthService
-      // deve capturar e relançar como UnauthorizedException
+
       mockUserService.findByEmail.mockResolvedValue(null);
 
       await expect(
@@ -77,7 +76,7 @@ describe('AuthService', () => {
     });
   });
 
-  // ─── generateTokens ────────────────────────────────────────────────────────
+
 
   describe('generateTokens()', () => {
     it('deve gerar accessToken e refreshToken', async () => {
