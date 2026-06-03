@@ -123,10 +123,9 @@ describe('UserService', () => {
       expect(result.name).toBe('Carlos');
     });
 
-    it('deve lançar NotFoundException se email não existir', async () => {
-      await expect(
-        service.findByEmail('naoexiste@email.com'),
-      ).rejects.toThrow(NotFoundException);
+    it('deve retornar null se email não existir', async () => {
+      const result = await service.findByEmail('naoexiste@email.com');
+      expect(result).toBeNull();
     });
   });
 

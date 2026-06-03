@@ -33,9 +33,7 @@ export class UserService {
   }
 
   async findByEmail(email: string) {
-    const user = await this.model.findOne({ email });
-    if (!user) throw new NotFoundException('Usuário não encontrado');
-    return user;
+    return this.model.findOne({ email });
   }
 
   async update(userId: string, data: UpdateUserDto) {
