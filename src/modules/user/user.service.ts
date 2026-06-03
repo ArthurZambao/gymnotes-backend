@@ -47,6 +47,7 @@ export class UserService {
       weight: data.weight,
       height: data.height,
       avatar: data.avatar,
+      biotype: data.biotype,
     };
 
     return this.model
