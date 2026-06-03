@@ -1,27 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Resend } from 'resend';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailService {
-  private resend: Resend;
+  private transporter: nodemailer.Transporter;
   private fromAddress: string;
 
   constructor(private config: ConfigService) {
-    this.resend = new Resend(this.config.getOrThrow<string>('RESEND_API_KEY'));
-    this.fromAddress = this.config.get<string>('MAIL_FROM', 'onboarding@resend.dev');
+    this.transporter = nodemailer.createTransport({
+      host: this.config.get<string>('MAIL_HOST', 'smtp.gmail.com'),
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: this.config.getOrThrow<string>('MAIL_USER'),
+        pass: this.config.getOrThrow<string>('MAIL_PASS'),
+      },
+    });
+    this.fromAddress = this.config.get<string>('MAIL_FROM', 'GymNotes <onboarding@resend.dev>');
   }
 
   async sendVerificationEmail(email: string, name: string, token: string, baseUrl: string) {
     const url = `${baseUrl}/auth/verify-email?token=${token}`;
 
-    console.log('[MAIL] Iniciando envio via Resend');
+    console.log('[MAIL] Iniciando envio via Nodemailer');
     console.log('[MAIL] Destinatário:', email);
 
     try {
-      const { data, error } = await this.resend.emails.send({
-        from: `GymNotes <${this.fromAddress}>`,
-        to: [email],
+      const info = await this.transporter.sendMail({
+        from: this.fromAddress,
+        to: email,
         subject: 'Confirme seu email — GymNotes',
         html: `
           <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
@@ -39,12 +47,7 @@ export class MailService {
         `,
       });
 
-      if (error) {
-        console.error('[MAIL] Resend retornou erro:', error);
-        throw new Error(error.message);
-      }
-
-      console.log('[MAIL] Email enviado com sucesso. ID:', data?.id);
+      console.log('[MAIL] Email enviado com sucesso. ID:', info.messageId);
     } catch (error) {
       console.error('[MAIL] Erro ao enviar email:', error);
       throw error;
