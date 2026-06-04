@@ -11,12 +11,16 @@ export class MailService {
     this.transporter = nodemailer.createTransport({
       host: this.config.get<string>('MAIL_HOST', 'smtp.gmail.com'),
       port: 587,
-      secure: false, // true for 465, false for other ports
+      secure: false,
       auth: {
         user: this.config.getOrThrow<string>('MAIL_USER'),
         pass: this.config.getOrThrow<string>('MAIL_PASS'),
       },
-    });
+      tls: {
+        rejectUnauthorized: false,
+      },
+      family: 4, // Force IPv4 to avoid ENETUNREACH on networks without IPv6
+    } as nodemailer.TransportOptions);
     this.fromAddress = this.config.get<string>('MAIL_FROM', 'GymNotes <onboarding@resend.dev>');
   }
 
