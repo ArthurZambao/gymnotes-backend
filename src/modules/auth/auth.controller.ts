@@ -82,9 +82,12 @@ export class AuthController {
   async googleCallback(@Req() req, @Res() res: Response) {
     const result = await this.service.loginWithGoogle(req.user);
 
-    res.cookie('token', result.accessToken, cookieOptions);
-    res.cookie('refreshToken', result.refreshToken, cookieOptions);
-    res.redirect(`${process.env.FRONTEND_URL}/home`);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+    const redirectUrl = new URL('/auth/google/callback', frontendUrl);
+    redirectUrl.searchParams.set('token', result.accessToken);
+    redirectUrl.searchParams.set('refreshToken', result.refreshToken);
+
+    res.redirect(redirectUrl.toString());
   }
 
   @ApiOperation({ summary: 'Verifica o email pelo token recebido' })
