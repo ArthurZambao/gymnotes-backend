@@ -1,41 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import { BrevoClient } from '@getbrevo/brevo';
 
 @Injectable()
 export class MailService {
-  private transporter: nodemailer.Transporter;
-  private fromAddress: string;
+  private client: BrevoClient;
+  private fromEmail: string;
+  private fromName: string;
 
   constructor(private config: ConfigService) {
-    this.transporter = nodemailer.createTransport({
-      host: this.config.get<string>('MAIL_HOST', 'smtp.gmail.com'),
-      port: 587,
-      secure: false,
-      auth: {
-        user: this.config.getOrThrow<string>('MAIL_USER'),
-        pass: this.config.getOrThrow<string>('MAIL_PASS'),
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-      family: 4, // Force IPv4 to avoid ENETUNREACH on networks without IPv6
-    } as nodemailer.TransportOptions);
-    this.fromAddress = this.config.get<string>('MAIL_FROM', 'GymNotes <onboarding@resend.dev>');
+    this.client = new BrevoClient({
+      apiKey: this.config.getOrThrow<string>('BREVO_API_KEY'),
+    });
+    this.fromEmail = this.config.get<string>('MAIL_FROM', 'noreply@gymnotes.app');
+    this.fromName = this.config.get<string>('MAIL_FROM_NAME', 'GymNotes');
   }
 
   async sendVerificationEmail(email: string, name: string, token: string, baseUrl: string) {
     const url = `${baseUrl}/auth/verify-email?token=${token}`;
 
-    console.log('[MAIL] Iniciando envio via Nodemailer');
+    console.log('[MAIL] Iniciando envio via Brevo');
     console.log('[MAIL] Destinatário:', email);
 
     try {
-      const info = await this.transporter.sendMail({
-        from: this.fromAddress,
-        to: email,
+      const result = await this.client.transactionalEmails.sendTransacEmail({
+        sender: { email: this.fromEmail, name: this.fromName },
+        to: [{ email, name }],
         subject: 'Confirme seu email — GymNotes',
-        html: `
+        htmlContent: `
           <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
             <h2>Olá, ${name}! 👋</h2>
             <p>Confirme seu email clicando no botão abaixo. O link expira em <strong>24 horas</strong>.</p>
@@ -51,7 +43,7 @@ export class MailService {
         `,
       });
 
-      console.log('[MAIL] Email enviado com sucesso. ID:', info.messageId);
+      console.log('[MAIL] Email enviado com sucesso. ID:', result.messageId);
     } catch (error) {
       console.error('[MAIL] Erro ao enviar email:', error);
       throw error;
