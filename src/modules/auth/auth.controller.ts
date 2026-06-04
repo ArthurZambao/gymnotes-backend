@@ -83,7 +83,7 @@ export class AuthController {
     const result = await this.service.loginWithGoogle(req.user);
 
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
-    const redirectUrl = new URL('/auth/google/callback', frontendUrl);
+    const redirectUrl = new URL('/api/auth/google/callback', frontendUrl);
     redirectUrl.searchParams.set('token', result.accessToken);
     redirectUrl.searchParams.set('refreshToken', result.refreshToken);
 
